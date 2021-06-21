@@ -13,6 +13,8 @@ var swaggerUIExpress = require('swagger-ui-express');
 var swaggerJSDoc = require('swagger-jsdoc');
 var mongoose = require("mongoose");
 
+var routes = require('./routes/rosen-composer-routes');
+
 //Variable defined as express library.
 var app = express();
 
@@ -24,6 +26,18 @@ app.use(express.json());
 
 //App will use express.urlencoded
 app.use(express.urlencoded({extended: true}));
+//Mongoose Connection
+const mongoDB = "mongodb+srv://tmrosen:tmrosen@buwebdev-cluster-1.azoni.mongodb.net/test";
+mongoose.connect(mongoDB, {
+});
+
+mongoose.Promise = global.Promise;
+var db = mongoose.connection;
+db.on("error", console.error.bind(console, "MongoDB Connection Error: "));
+db.once("open", function() {
+    console.log("Application connected to MongoDB");
+});
+
 
 //Define options with properties/values. 
 const options = {
