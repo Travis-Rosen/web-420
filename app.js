@@ -7,16 +7,18 @@
 */
 
 // Requirement statements. 
-var express = require('express');
-var http = require('http');
-var swaggerUIExpress = require('swagger-ui-express');
-var swaggerJSDoc = require('swagger-jsdoc');
-var mongoose = require("mongoose");
+const express = require('express');
+const http = require('http');
+const swaggerUIExpress = require('swagger-ui-express');
+const swaggerJSDoc = require('swagger-jsdoc');
+const mongoose = require("mongoose");
+const composerAPI = require('./routes/rosen-composer-routes');
+const personAPI = require('./routes/rosen-person-routes');
 
-var routes = require('./routes/rosen-composer-routes');
 
 //Variable defined as express library.
-var app = express();
+let app = express();
+
 
 //Setting the port.
 app.set("port", process.env.PORT || 3000)
@@ -26,6 +28,7 @@ app.use(express.json());
 
 //App will use express.urlencoded
 app.use(express.urlencoded({extended: true}));
+
 //Mongoose Connection
 const mongoDB = "mongodb+srv://tmrosen:tmrosen@buwebdev-cluster-1.azoni.mongodb.net/test";
 mongoose.connect(mongoDB, {
@@ -54,6 +57,10 @@ const options = {
 const openAPISpecification = swaggerJSDoc(options);
 
 app.use('/api-docs', swaggerUIExpress.serve, swaggerUIExpress.setup(openAPISpecification));
+app.use('/api', composerAPI);
+app.use('/api', personAPI);
+
+
 
 //Create server and listen on port 3000.
 http.createServer(app).listen(app.get("port"), function() {

@@ -7,7 +7,7 @@ Description: Composer api routes
 
 const express = require('express');
 const Composer = require('../models/rosen-composer');
-const router = exports.Router();
+const router = express.Router();
 
 /**
  * findAllComposers
@@ -154,4 +154,4 @@ router.post('/composers', async(req, res) => {
     }
 });
 
-module.exports = router
+module.exports = router;
