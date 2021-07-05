@@ -12,8 +12,10 @@ const http = require('http');
 const swaggerUIExpress = require('swagger-ui-express');
 const swaggerJSDoc = require('swagger-jsdoc');
 const mongoose = require("mongoose");
+const bcrypt = require('bcrypt');
 const composerAPI = require('./routes/rosen-composer-routes');
 const personAPI = require('./routes/rosen-person-routes');
+const userAPI = require('./routes/rosen-session-routes');
 
 
 //Variable defined as express library.
@@ -59,6 +61,7 @@ const openAPISpecification = swaggerJSDoc(options);
 app.use('/api-docs', swaggerUIExpress.serve, swaggerUIExpress.setup(openAPISpecification));
 app.use('/api', composerAPI);
 app.use('/api', personAPI);
+app.use('/api', userAPI);
 
 
 
