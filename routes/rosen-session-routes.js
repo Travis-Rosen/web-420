@@ -20,7 +20,7 @@ const saltRounds = 10;
  * /api/signup:
  *   post:
  *     tags:
- *       - Register User
+ *       - User
  *     name: signup
  *     summary: Register user information
  *     requestBody:
@@ -97,7 +97,7 @@ router.post('/signup', async (req, res) => {
  * /api/login:
  *   post:
  *     tags:
- *       - Log-in
+ *       - User
  *     name: login
  *     summary: User log in with user information
  *     requestBody:

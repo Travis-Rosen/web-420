@@ -16,6 +16,7 @@ const bcrypt = require('bcrypt');
 const composerAPI = require('./routes/rosen-composer-routes');
 const personAPI = require('./routes/rosen-person-routes');
 const userAPI = require('./routes/rosen-session-routes');
+const customerAPI = require('./routes/rosen-node-shopper-routes');
 
 
 //Variable defined as express library.
@@ -62,6 +63,7 @@ app.use('/api-docs', swaggerUIExpress.serve, swaggerUIExpress.setup(openAPISpeci
 app.use('/api', composerAPI);
 app.use('/api', personAPI);
 app.use('/api', userAPI);
+app.use('/api', customerAPI);
 
 
 
