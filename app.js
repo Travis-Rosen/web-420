@@ -61,11 +61,8 @@ const options = {
 const openAPISpecification = swaggerJSDoc(options);
 
 app.use('/api-docs', swaggerUIExpress.serve, swaggerUIExpress.setup(openAPISpecification));
-app.use('/api', composerAPI);
-app.use('/api', personAPI);
-app.use('/api', userAPI);
-app.use('/api', customerAPI);
-app.use('/api', capstoneAPI);
+app.use('/api', composerAPI, personAPI, userAPI, customerAPI, capstoneAPI);
+
 
 
 
