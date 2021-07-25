@@ -70,6 +70,6 @@ app.use('/api', capstoneAPI);
 
 
 //Create server and listen on port 3000.
-http.createServer(app).listen(app.get("port"), function() {
-    console.log('Application started and listening on port %s', + app.get("port"))
+http.createServer(app).listen(process.env.PORT || 3000, function() {
+    console.log("Application started and listening on port 3000");
 });
