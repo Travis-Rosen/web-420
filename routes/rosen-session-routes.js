@@ -20,67 +20,78 @@ const saltRounds = 10;
  * /api/signup:
  *   post:
  *     tags:
- *       - User
- *     name: signup
- *     summary: Register user information
+ *       - Users
+ *     name: Signup
+ *     summary: Register a new user
  *     requestBody:
- *       description: Registration information for new User
+ *       description: User information
  *       content:
  *         application/json:
  *           schema:
  *             required:
  *               - userName
- *               - Password
+ *               - password
  *               - emailAddress
  *             properties:
  *               userName:
  *                 type: string
- *               Password:
+ *               password:
  *                 type: string
  *               emailAddress:
  *                 type: string
  *     responses:
  *       '200':
- *         description: Registered user
+ *         description: User added to MongoDB
  *       '401':
- *         description: Username is already in use       
+ *         description: Username already in use
  *       '500':
  *         description: Server Exception
  *       '501':
  *         description: MongoDB Exception
  */
-
-router.post('/signup', async (req, res) => {
-    //Wrapping the code in a try/catch block
+ router.post('/signup', async(req, res) => {
     try {
-        //findOne() function to query the users collection
-        User.findOne({'userName': req.params.userName}, function(err, user) {
-            //if-else block to checked returned value from query. 
-            if(!user) {
-                //Using bcrpyt package to hashSync the password. 
-                const hashedPassword = bcrypt.hashSync(req.body.password, saltRounds);
-                //Object literal to map the values to the object properties 
-                const newRegisteredUser = {
-                    userName: req.body.userName,
-                    password: hashedPassword,
-                    emailAddress: req.body.emailAddress
+        User.findOne({'userName': req.body.userName}, function(err, user) {
+            if (err) {
+                console.log(err);
+                res.status(501).send({
+                    'message': `MongoDB Exception: ${err}`
+                })
+            } else {
+
+                /**
+                 * If returned user object is empty, then requested username is not in use and we should proceed with
+                 * adding them to the database.
+                 */
+                if (!user) {
+                    let hashedPassword = bcrypt.hashSync(req.body.password, saltRounds); // salt/hash the password
+
+                    const newRegisteredUser = {
+                        userName: req.body.userName,
+                        password: hashedPassword,
+                        emailAddress: req.body.emailAddress
+                    };
+
+                    User.create(newRegisteredUser, function(err, registeredUser) {
+                        if (err) {
+                            console.log(err);
+                            res.status(501).send({
+                                'message': `MongoDB Exception: ${err}`
+                            })
+                        } else {
+                            console.log(registeredUser);
+                            res.json(registeredUser);
+                        }
+                    })
+                } else {
+                    /**
+                     * Otherwise, the username is already in use
+                     */
+                    console.log(`Username: ${req.body.userName} is already in use, please try again.`)
+                    res.status(401).send({
+                        'message': `Username: ${req.body.username} is already in use, please try again.`
+                    })
                 }
-                //Responses:
-                User.create(newRegisteredUser, function(err, user) {
-                    if (err) {
-                        console.log(err);
-                        res.status(501).send({
-                            'message': `MongoDB Exception: ${err}`
-                        })
-                    } else {
-                        console.log(user);
-                        res.json(user);
-                    }
-                })
-            } else if(user) {
-                res.status(401).send({
-                    'message': `Username is already in use`
-                })
             }
         })
     } catch (e) {
@@ -97,11 +108,11 @@ router.post('/signup', async (req, res) => {
  * /api/login:
  *   post:
  *     tags:
- *       - User
+ *       - Users
  *     name: login
- *     summary: User log in with user information
+ *     summary: User login
  *     requestBody:
- *       description: Log in user
+ *       description: User information
  *       content:
  *         application/json:
  *           schema:
@@ -109,52 +120,59 @@ router.post('/signup', async (req, res) => {
  *               - userName
  *               - password
  *             properties:
- *              userName:
+ *               userName:
  *                 type: string
- *              password:
+ *               password:
  *                 type: string
  *     responses:
  *       '200':
  *         description: User logged in
  *       '401':
- *         description: Invalid userName and/or password
+ *         description: Invalid username or password
  *       '500':
  *         description: Server Exception
  *       '501':
  *         description: MongoDB Exception
  */
-
-router.post('/login', async(req,res) => {
-    //Wrapping code in try/catch block
+router.post('/login', async(req, res) => {
     try {
-        //Using findOne with userName.
-        User.findOne({'userName': req.params.userName}, function(err, user) {
-            if(user) {
-                //Checking if password is valid
-                let passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
-                //Responses
-                if(passwordIsValid) {
-                    console.log('Valid Password');
-                    res.status(200).send({
-                        'message': `User logged in`
-                    })
-                } else if(!user) {
-                    console.log('Invalid Password');
-                    res.status(401).send({
-                        'message': `Invalid userName and/or password`
-                    })
-                }
-            }
-            if(err) {
+        User.findOne({'userName': req.body.userName}, function(err, user) {
+            if (err) {
                 console.log(err);
                 res.status(501).send({
                     'message': `MongoDB Exception: ${err}`
                 })
             } else {
-                console.log(user)
+                console.log(user);
+
+                /**
+                 * If returned user object is not empty, then requested password will be compared against the body password
+                 */
+                if (user) {
+                    let passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
+
+                    /**
+                     * If the password is valid, allow the user to login
+                     */
+                    if (passwordIsValid) {
+                        res.status(200).send({
+                            'message': 'User logged in'
+                        })
+                    } else {
+                        console.log(`The supplied password for username: ${req.body.userName} is incorrect.`)
+                        res.status(401).send({
+                            'message': `The supplied password for username: ${req.body.userName} is incorrect.`
+                        })
+                    }
+                } else {
+                    console.log(`Invalid username`);
+                    res.status(401).send({
+                        'message': `The supplied username: ${req.body.userName} is incorrect.`
+                    })
+                }
             }
         })
-    } catch(e) {
+    } catch (e) {
         console.log(e);
         res.status(500).send({
             'message': `Server Exception: ${e.message}`
