@@ -56,13 +56,13 @@ router.post('/signup', async (req, res) => {
         //findOne() function to query the users collection
         User.findOne({'userName': req.params.userName}, function(err, user) {
             //if-else block to checked returned value from query. 
-            if(!User) {
+            if(!user) {
                 //Using bcrpyt package to hashSync the password. 
                 const hashedPassword = bcrypt.hashSync(req.body.password, saltRounds);
                 //Object literal to map the values to the object properties 
                 const newRegisteredUser = {
                     userName: req.body.userName,
-                    password: req.body.userName,
+                    password: hashedPassword,
                     emailAddress: req.body.emailAddress
                 }
                 //Responses:
@@ -77,7 +77,7 @@ router.post('/signup', async (req, res) => {
                         res.json(user);
                     }
                 })
-            } else if(User) {
+            } else if(user) {
                 res.status(401).send({
                     'message': `Username is already in use`
                 })
