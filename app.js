@@ -67,6 +67,6 @@ app.use('/api', composerAPI, personAPI, userAPI, customerAPI, capstoneAPI);
 
 
 //Create server and listen on port 3000.
-http.listen(process.env.PORT || 3000, function() {
+http.createServer(app).listen(process.env.PORT || 3000, function() {
     console.log("Application started and listening on port 3000");
 });
